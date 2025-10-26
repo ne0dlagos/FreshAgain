@@ -23,14 +23,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.freshagain.app.R
-// Importamos nuestro detector de tamaño
+import com.freshagain.app.navigation.AppScreens
 import com.freshagain.app.ui.utils.obtenerWindowSizeClass
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
-    // 1. Obtenemos la clase de tamaño
+fun HomeScreen(navController: NavController) {
     val windowSizeClass = obtenerWindowSizeClass()
 
     Scaffold(
@@ -39,18 +40,17 @@ fun HomeScreen() {
         }
     ) { innerPadding ->
 
-        // 2. Decidimos el layout basado en el ancho
         when (windowSizeClass.widthSizeClass) {
-            // Caso Teléfono (Vertical)
             WindowWidthSizeClass.Compact -> {
                 LayoutCompacto(
-                    modifier = Modifier.padding(innerPadding)
+                    modifier = Modifier.padding(innerPadding),
+                    navController = navController
                 )
             }
-            // Caso Tablet (Horizontal)
             else -> {
                 LayoutMedianoOExpandido(
-                    modifier = Modifier.padding(innerPadding)
+                    modifier = Modifier.padding(innerPadding),
+                    navController = navController
                 )
             }
         }
@@ -59,10 +59,12 @@ fun HomeScreen() {
 
 /**
  * Layout para pantallas compactas (teléfonos).
- * Apila los elementos verticalmente.
  */
 @Composable
-private fun LayoutCompacto(modifier: Modifier = Modifier) {
+private fun LayoutCompacto(
+    modifier: Modifier = Modifier,
+    navController: NavController
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -70,16 +72,18 @@ private fun LayoutCompacto(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ContenidoComun()
+        ContenidoComun(navController = navController)
     }
 }
 
 /**
  * Layout para pantallas medianas o expandidas (tablets).
- * Coloca los elementos horizontalmente.
  */
 @Composable
-private fun LayoutMedianoOExpandido(modifier: Modifier = Modifier) {
+private fun LayoutMedianoOExpandido(
+    modifier: Modifier = Modifier,
+    navController: NavController
+) {
     Row(
         modifier = modifier
             .fillMaxSize()
@@ -87,8 +91,6 @@ private fun LayoutMedianoOExpandido(modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.spacedBy(32.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Usamos pesos para que la columna de texto e imagen
-        // compartan el espacio
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(20.dp)
@@ -96,10 +98,10 @@ private fun LayoutMedianoOExpandido(modifier: Modifier = Modifier) {
             Text(text = "¡Bienvenido a FreshAgain!")
 
             Button(
-                onClick = { /* TODO: Acción de navegación */ },
+                onClick = { navController.navigate(AppScreens.RegistroScreen.route) },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Ver Catálogo")
+                Text("Registrarse")
             }
         }
 
@@ -110,25 +112,20 @@ private fun LayoutMedianoOExpandido(modifier: Modifier = Modifier) {
             contentDescription = "Logo de FreshAgain",
             modifier = Modifier
                 .weight(1f)
-                .height(250.dp), // Más alto en tablets
+                .height(250.dp),
             contentScale = ContentScale.Fit
         )
     }
 }
-
-/**
- * Elementos comunes para ambos layouts.
- * (En este caso, solo para el compacto para simplificar)
- */
 @Composable
-private fun ContenidoComun() {
+private fun ContenidoComun(navController: NavController) {
     Text(text = "¡Bienvenido a FreshAgain!")
 
     Button(
-        onClick = { /* TODO: Acción de navegación */ },
+        onClick = { navController.navigate(AppScreens.RegistroScreen.route) },
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text("Ver Catálogo")
+        Text("Registrarse") // <-- 6. Texto del botón
     }
 
     Image(
@@ -141,16 +138,8 @@ private fun ContenidoComun() {
     )
 }
 
-@Preview(showBackground = true, widthDp = 360, heightDp = 800, name = "Compact Preview")
+@Preview(showBackground = true)
 @Composable
-fun HomeScreenCompactPreview() {
-    // Vista previa de teléfono
-    LayoutCompacto()
-}
-
-@Preview(showBackground = true, widthDp = 1280, heightDp = 800, name = "Expanded Preview")
-@Composable
-fun HomeScreenExpandedPreview() {
-    // Vista previa de tablet
-    LayoutMedianoOExpandido()
+fun HomeScreenPreview() {
+    HomeScreen(navController = rememberNavController())
 }
