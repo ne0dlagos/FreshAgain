@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,9 +33,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
@@ -55,19 +55,16 @@ fun RegistroScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    // --- Launchers (Guía 13) ---
+    // Estado de la animación
+    val mostrarExito by viewModel.mostrarExito.collectAsState()
 
-    // Launcher para seleccionar imagen de la Galería
+    // --- Launchers (Guía 13) ---
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         viewModel.onImagenChange(uri)
     }
-
-    // URI temporal para guardar la foto de la cámara
     val cameraTempUri = rememberLauncherUri(context)
-
-    // Launcher para tomar foto con la Cámara
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success: Boolean ->
@@ -77,7 +74,6 @@ fun RegistroScreen(
     }
 
     // --- UI ---
-
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Regístrate") })
@@ -88,14 +84,14 @@ fun RegistroScreen(
                 .padding(innerPadding)
                 .fillMaxSize()
                 .padding(16.dp)
-                .verticalScroll(rememberScrollState()), // Para que no se corte en pantallas chicas
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
             // Imagen de Perfil
             AsyncImage(
-                model = uiState.imagenUri ?: R.drawable.logo, // Muestra logo si no hay imagen
+                model = uiState.imagenUri ?: R.drawable.logo,
                 contentDescription = "Foto de perfil",
                 modifier = Modifier
                     .size(120.dp)
@@ -166,11 +162,20 @@ fun RegistroScreen(
                 Text("Acepto los términos y condiciones")
             }
 
+            // --- Mensaje de Éxito Animado (Guía 12) ---
+            AnimatedVisibility(visible = mostrarExito) {
+                Text(
+                    text = "¡Registro guardado exitosamente!",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+
+            // Botón
             Button(
                 onClick = {
-                    if (viewModel.validarFormulario()) {
-                        // TODO: Paso 4 (Animación y Persistencia)
-                    }
+                    // Llamamos a la nueva función del ViewModel
+                    viewModel.registrarUsuario()
                 },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = uiState.aceptaTerminos
@@ -181,9 +186,6 @@ fun RegistroScreen(
     }
 }
 
-/**
- * Función helper para crear una URI temporal donde la cámara guardará la foto.
- */
 @Composable
 private fun rememberLauncherUri(context: Context): Uri {
     val file = File(context.cacheDir, "temp_image.jpg")

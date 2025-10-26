@@ -1,18 +1,30 @@
 package com.freshagain.app.viewmodel
 
+import android.app.Application
 import android.net.Uri
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.freshagain.app.data.EstadoDataStore
 import com.freshagain.app.model.RegistroErrores
 import com.freshagain.app.model.RegistroUiState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class RegistroViewModel : ViewModel() {
+class RegistroViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(RegistroUiState())
     val uiState: StateFlow<RegistroUiState> = _uiState.asStateFlow()
+
+    // Estado para la animación de éxito
+    private val _mostrarExito = MutableStateFlow(false)
+    val mostrarExito: StateFlow<Boolean> = _mostrarExito.asStateFlow()
+
+    // Instancia de DataStore
+    private val estadoDataStore = EstadoDataStore(application)
 
     fun onNombreChange(valor: String) {
         _uiState.update {
@@ -44,10 +56,32 @@ class RegistroViewModel : ViewModel() {
     fun onAceptaTerminosChange(valor: Boolean) {
         _uiState.update { it.copy(aceptaTerminos = valor) }
     }
+
     fun onImagenChange(uri: Uri?) {
         _uiState.update { it.copy(imagenUri = uri) }
     }
-    fun validarFormulario(): Boolean {
+
+    // Lógica al presionar el botón
+    fun registrarUsuario() {
+        if (validarFormulario()) {
+            viewModelScope.launch {
+                // 1. Guardar en DataStore
+                estadoDataStore.guardarEstadoRegistro(true)
+
+                // 2. Activar animación
+                _mostrarExito.value = true
+
+                // 3. Esperar y desactivar animación
+                delay(2000)
+                _mostrarExito.value = false
+
+                // TODO: Aquí podrías navegar a otra pantalla
+                // navController.popBackStack()
+            }
+        }
+    }
+
+    private fun validarFormulario(): Boolean {
         val estadoActual = _uiState.value
         val errores = RegistroErrores(
             nombre = if (estadoActual.nombre.isBlank()) "Campo obligatorio" else null,
@@ -57,7 +91,6 @@ class RegistroViewModel : ViewModel() {
 
         _uiState.update { it.copy(errores = errores) }
 
-        // Retorna true si NO hay errores
         return listOfNotNull(
             errores.nombre,
             errores.correo,
