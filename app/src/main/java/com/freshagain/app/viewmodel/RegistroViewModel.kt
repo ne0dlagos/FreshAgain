@@ -1,5 +1,6 @@
 package com.freshagain.app.viewmodel
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import com.freshagain.app.model.RegistroErrores
 import com.freshagain.app.model.RegistroUiState
@@ -43,7 +44,9 @@ class RegistroViewModel : ViewModel() {
     fun onAceptaTerminosChange(valor: Boolean) {
         _uiState.update { it.copy(aceptaTerminos = valor) }
     }
-
+    fun onImagenChange(uri: Uri?) {
+        _uiState.update { it.copy(imagenUri = uri) }
+    }
     fun validarFormulario(): Boolean {
         val estadoActual = _uiState.value
         val errores = RegistroErrores(
