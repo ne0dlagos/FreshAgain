@@ -61,22 +61,16 @@ class RegistroViewModel(application: Application) : AndroidViewModel(application
         _uiState.update { it.copy(imagenUri = uri) }
     }
 
-    // Lógica al presionar el botón
     fun registrarUsuario() {
         if (validarFormulario()) {
             viewModelScope.launch {
-                // 1. Guardar en DataStore
                 estadoDataStore.guardarEstadoRegistro(true)
 
-                // 2. Activar animación
                 _mostrarExito.value = true
 
-                // 3. Esperar y desactivar animación
                 delay(2000)
                 _mostrarExito.value = false
 
-                // TODO: Aquí podrías navegar a otra pantalla
-                // navController.popBackStack()
             }
         }
     }

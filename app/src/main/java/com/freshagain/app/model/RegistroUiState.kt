@@ -1,6 +1,6 @@
 package com.freshagain.app.model
 
-import android.net.Uri // <- Importar
+import android.net.Uri
 
 data class RegistroUiState(
     val nombre: String = "",
@@ -8,5 +8,5 @@ data class RegistroUiState(
     val clave: String = "",
     val aceptaTerminos: Boolean = false,
     val errores: RegistroErrores = RegistroErrores(),
-    val imagenUri: Uri? = null // <- Añadir esta línea
+    val imagenUri: Uri? = null
 )

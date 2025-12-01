@@ -55,10 +55,8 @@ fun RegistroScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    // Estado de la animación
     val mostrarExito by viewModel.mostrarExito.collectAsState()
 
-    // --- Launchers (Guía 13) ---
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -73,7 +71,6 @@ fun RegistroScreen(
         }
     }
 
-    // --- UI ---
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Regístrate") })
@@ -89,7 +86,6 @@ fun RegistroScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            // Imagen de Perfil
             AsyncImage(
                 model = uiState.imagenUri ?: R.drawable.logo,
                 contentDescription = "Foto de perfil",
@@ -101,7 +97,6 @@ fun RegistroScreen(
 
             Spacer(Modifier.height(8.dp))
 
-            // Botones de Cámara y Galería
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
@@ -116,7 +111,6 @@ fun RegistroScreen(
 
             Spacer(Modifier.height(8.dp))
 
-            // --- Formulario (Guía 11) ---
             OutlinedTextField(
                 value = uiState.nombre,
                 onValueChange = viewModel::onNombreChange,
@@ -162,7 +156,6 @@ fun RegistroScreen(
                 Text("Acepto los términos y condiciones")
             }
 
-            // --- Mensaje de Éxito Animado (Guía 12) ---
             AnimatedVisibility(visible = mostrarExito) {
                 Text(
                     text = "¡Registro guardado exitosamente!",
@@ -171,10 +164,8 @@ fun RegistroScreen(
                 )
             }
 
-            // Botón
             Button(
                 onClick = {
-                    // Llamamos a la nueva función del ViewModel
                     viewModel.registrarUsuario()
                 },
                 modifier = Modifier.fillMaxWidth(),

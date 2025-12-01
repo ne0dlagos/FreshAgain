@@ -61,4 +61,17 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    // Retrofit - Conectar APIs
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    // Gson - Traducir de JSON a Kotlin
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    // Pruebas Unitarias
+    testImplementation("io.kotest:kotest-runner-junit5:5.6.2")
+    testImplementation("io.kotest:kotest-assertions-core:5.6.2")
+    testImplementation("io.mockk:mockk:1.13.5")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
 }

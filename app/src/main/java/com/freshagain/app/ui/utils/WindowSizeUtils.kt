@@ -10,9 +10,8 @@ import androidx.compose.runtime.Composable
  * Función utilitaria para obtener la clase de tamaño de ventana (WindowSizeClass).
  * Calcula si la pantalla es Compacta, Mediana o Expandida
  */
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class) // Requerido por la API
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun obtenerWindowSizeClass(): WindowSizeClass {
-    // Calcula y retorna la clase de tamaño para el Activity actual
     return calculateWindowSizeClass(LocalActivity.current as android.app.Activity)
 }

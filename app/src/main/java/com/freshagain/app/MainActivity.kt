@@ -21,7 +21,6 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // Llama al gestor de navegación
                     AppNavigation()
                 }
             }

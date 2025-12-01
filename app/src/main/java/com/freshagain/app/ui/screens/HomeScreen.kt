@@ -11,14 +11,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.freshagain.app.R
+import com.freshagain.app.data.remote.RetrofitClientExternal
 import com.freshagain.app.navigation.AppScreens
 import com.freshagain.app.ui.utils.obtenerWindowSizeClass
 
@@ -57,9 +65,6 @@ fun HomeScreen(navController: NavController) {
     }
 }
 
-/**
- * Layout para pantallas compactas (teléfonos).
- */
 @Composable
 private fun LayoutCompacto(
     modifier: Modifier = Modifier,
@@ -76,9 +81,6 @@ private fun LayoutCompacto(
     }
 }
 
-/**
- * Layout para pantallas medianas o expandidas (tablets).
- */
 @Composable
 private fun LayoutMedianoOExpandido(
     modifier: Modifier = Modifier,
@@ -95,14 +97,7 @@ private fun LayoutMedianoOExpandido(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Text(text = "¡Bienvenido a FreshAgain!")
-
-            Button(
-                onClick = { navController.navigate(AppScreens.RegistroScreen.route) },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Registrarse")
-            }
+            BotonesNavegacion(navController)
         }
 
         Spacer(Modifier.width(32.dp))
@@ -117,16 +112,17 @@ private fun LayoutMedianoOExpandido(
         )
     }
 }
+
 @Composable
 private fun ContenidoComun(navController: NavController) {
-    Text(text = "¡Bienvenido a FreshAgain!")
+    Text(text = "¡Bienvenido a FreshAgain!", style = MaterialTheme.typography.titleLarge)
 
-    Button(
-        onClick = { navController.navigate(AppScreens.RegistroScreen.route) },
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text("Registrarse") // <-- 6. Texto del botón
-    }
+    WidgetClima()
+    // ----------------------------------------------
+
+    BotonesNavegacion(navController)
+
+    Spacer(modifier = Modifier.height(20.dp))
 
     Image(
         painter = painterResource(id = R.drawable.logo),
@@ -136,6 +132,67 @@ private fun ContenidoComun(navController: NavController) {
             .height(150.dp),
         contentScale = ContentScale.Fit
     )
+}
+
+@Composable
+fun WidgetClima() {
+    val temperatura = remember { mutableStateOf<Double?>(null) }
+
+    LaunchedEffect(Unit) {
+        try {
+            val respuesta = RetrofitClientExternal.api.obtenerClimaActual()
+            temperatura.value = respuesta.currentWeather.temperature
+        } catch (e: Exception) {
+            println("Error obteniendo clima: ${e.message}")
+        }
+    }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD))
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text("Clima en Santiago", style = MaterialTheme.typography.labelMedium)
+                if (temperatura.value != null) {
+                    Text(
+                        text = "${temperatura.value}°C",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = Color(0xFF1565C0)
+                    )
+                } else {
+                    Text("Cargando...", style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun BotonesNavegacion(navController: NavController) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Button(
+            onClick = { navController.navigate(AppScreens.RegistroScreen.route) },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Registrarse")
+        }
+
+        Button(
+            onClick = { navController.navigate(AppScreens.Catalogo.route) },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Ver Catálogo de Ropa")
+        }
+    }
 }
 
 @Preview(showBackground = true)

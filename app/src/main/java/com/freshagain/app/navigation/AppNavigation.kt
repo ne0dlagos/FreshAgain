@@ -7,14 +7,18 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.freshagain.app.ui.screens.HomeScreen
 import com.freshagain.app.ui.screens.RegistroScreen
+import com.freshagain.app.ui.screens.CatalogoScreen
+import com.freshagain.app.ui.screens.SubirPrendaScreen
 import com.freshagain.app.viewmodel.RegistroViewModel
+import com.freshagain.app.viewmodel.PrendaViewModel
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
 
-    // Instanciamos el ViewModel aquí
     val registroViewModel: RegistroViewModel = viewModel()
+
+    val prendaViewModel: PrendaViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -25,10 +29,23 @@ fun AppNavigation() {
         }
 
         composable(route = AppScreens.RegistroScreen.route) {
-            // Pasamos el ViewModel a la pantalla
             RegistroScreen(
                 navController = navController,
                 viewModel = registroViewModel
+            )
+        }
+
+        composable(route = AppScreens.Catalogo.route) {
+            CatalogoScreen(
+                navController = navController,
+                viewModel = prendaViewModel
+            )
+        }
+
+        composable(route = AppScreens.SubirPrenda.route) {
+            SubirPrendaScreen(
+                navController = navController,
+                viewModel = prendaViewModel
             )
         }
     }
