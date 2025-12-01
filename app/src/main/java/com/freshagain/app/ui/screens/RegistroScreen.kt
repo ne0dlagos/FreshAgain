@@ -30,6 +30,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,19 +55,34 @@ fun RegistroScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
-
     val mostrarExito by viewModel.mostrarExito.collectAsState()
+
+    val cameraTempUri = remember {
+        try {
+            val file = File(context.cacheDir, "foto_temporal.jpg")
+            if (file.exists()) file.delete()
+            file.createNewFile()
+
+            FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.provider",
+                file
+            )
+        } catch (e: Exception) {
+            null
+        }
+    }
 
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         viewModel.onImagenChange(uri)
     }
-    val cameraTempUri = rememberLauncherUri(context)
+
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success: Boolean ->
-        if (success) {
+        if (success && cameraTempUri != null) {
             viewModel.onImagenChange(cameraTempUri)
         }
     }
@@ -104,7 +120,11 @@ fun RegistroScreen(
                 OutlinedButton(onClick = { galleryLauncher.launch("image/*") }) {
                     Text("Galería")
                 }
-                OutlinedButton(onClick = { cameraLauncher.launch(cameraTempUri) }) {
+                OutlinedButton(onClick = {
+                    if (cameraTempUri != null) {
+                        cameraLauncher.launch(cameraTempUri)
+                    }
+                }) {
                     Text("Tomar Foto")
                 }
             }
